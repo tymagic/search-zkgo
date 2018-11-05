@@ -29,9 +29,9 @@
 		<div class="row">
 			<div class="col-lg-6">
 				<div class="input-group">
-					<input type="text" class="form-control">
+					<input type="text" class="form-control" id="inputs">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="button">
+						<button class="btn btn-default" type="button" id="send" onclick="clickEnter()">
 							Go!
 						</button>
 					</span>
@@ -46,8 +46,31 @@
 <script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
 <script src="Stastic/custom-imitate-editor/jquery.custom.imitate.editor-v1.0.js"></script>
 <script>
+
+
     $("#text2").initTextarea();
-    $("#text2").val("这里是填充数据的地方\nsdsdswdasdddddddddddddddddddddddddddddddd");
+    onkeypress='if(event.keyCode==13) document.getElementById(/"ToSearch/").click()'
+    $('#send').click(function(e){
+        e.preventDefault();  //阻止默认提交
+        var command = $("#inputs").val(); // 注意，jquery筛选一定加引号，否则报错uncaught
+        $.ajax({
+            url: "http://127.0.0.1:8090/zkgo",
+            type: "POST",
+            data: {
+                "location": command,
+            },
+            success: function(res) {  //res是server端响应
+                var result = (res["message"]["values"])
+                var end=""
+                $.each(result, function(i,el){
+                    result[i]=(el)+"\n"
+                    end+=result[i]
+                });
+                $("#text2").val(end);
+
+            }})
+    });
+
 </script>
 <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
