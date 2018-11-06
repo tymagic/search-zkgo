@@ -31,7 +31,7 @@
 				<div class="input-group">
 					<input type="text" class="form-control" id="inputs">
 					<span class="input-group-btn">
-						<button class="btn btn-default" type="button" id="send" onclick="clickEnter()">
+						<button class="btn btn-default" type="button" id="send">
 							Go!
 						</button>
 					</span>
@@ -60,14 +60,18 @@
                 "location": command,
             },
             success: function(res) {  //res是server端响应
-                var result = (res["message"]["values"])
-                var end=""
-                $.each(result, function(i,el){
-                    result[i]=(el)+"\n"
-                    end+=result[i]
-                });
-                $("#text2").val(end);
-
+                if (res["OK"] == true) {
+                    var result = (res["message"]["values"])
+                    var end=""
+                    $.each(result, function(i,el){
+                        result[i]=(el)+"\n"
+                        end+=result[i]
+                    });
+                    $("#text2").val(end);
+                }
+                else {
+                    $("#text2").val("查询失败，请检查输入");
+                }
             }})
     });
 

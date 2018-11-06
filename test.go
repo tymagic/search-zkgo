@@ -62,7 +62,7 @@ func Serach_content(value string) ([]string,error){   //内容查询
 	return result_array,nil
 }
 
-func Search(uri string) (map[string]interface{},error) {
+func Search(uri string) (map[string]interface{},error,bool) {
 	tmp_str:=string(uri[len(uri)-1])
 	if tmp_str == "/"{
 		uri=string(uri[0:len(uri)-1])
@@ -75,7 +75,7 @@ func Search(uri string) (map[string]interface{},error) {
 	conn, _, err := zk.Connect(hosts, time.Second*5)
 	if err != nil {
 		fmt.Println(err)
-		return nil,err
+		return nil,err,false
 	}
 	defer conn.Close()
 	var path = uri
@@ -88,7 +88,7 @@ func Search(uri string) (map[string]interface{},error) {
 		var child_array []string
 		if err != nil {
 			fmt.Println(err)
-			return nil,err
+			return nil,err,false
 		}
 		fmt.Printf("root_path[%s] child_count[%d]\n", path, len(children))
 		for __, ch := range children {
@@ -102,7 +102,7 @@ func Search(uri string) (map[string]interface{},error) {
 	fmt.Println(value)
 	if err != nil {
 		fmt.Println(err)
-		return nil,err
+		return nil,err,false
 	}
 	if value == nil {
 		infos["values"] = "无数据"
@@ -111,11 +111,12 @@ func Search(uri string) (map[string]interface{},error) {
 		result,err:=Serach_content(value)//查询内容
 		if err != nil {
 			fmt.Println(err)
-			return nil,err}
+			return nil,err,false
+		}
 		infos["values"]=result
 		}
 	}
-	return infos,nil
+	return infos,nil,true
 
 }
 func main() {
@@ -126,10 +127,10 @@ func main() {
 		var uri string
 		uri = c.Request.FormValue("location")
 		fmt.Println("uri: ",uri)
-		result,_:=Search(uri)
+		result,_,msg:=Search(uri)
 		fmt.Println(result["values"])
 		c.JSON(200, gin.H{
-			"OK":true,
+			"OK":msg,
 			"message": result ,
 			"location": c.Request.FormValue("location"),
 		})
